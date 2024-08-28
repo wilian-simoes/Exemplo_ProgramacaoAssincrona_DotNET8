@@ -1,4 +1,15 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using TesteConsole1;
+
+
+// Registrar as dependências
+var services = new ServiceCollection();
+services.AddHttpClient<Produto>();
+var serviceProvider = services.BuildServiceProvider();
+
+var produto = serviceProvider.GetRequiredService<Produto>();
+
 
 Console.WriteLine("Iniciou o processamento.");
 
@@ -19,7 +30,7 @@ try
             {
                 try
                 {
-                    await EnviarProdutos();
+                    await produto.EnviarProdutos();
                 }
                 finally
                 {
@@ -32,23 +43,10 @@ try
 
     Console.WriteLine("Fim do processamento.");
     stopwatch.Stop();
-    Console.WriteLine(stopwatch.Elapsed);
+    Console.WriteLine($"Tempo de processamento: {stopwatch.Elapsed}");
 }
 catch (Exception ex)
 {
 
     Console.WriteLine($"ERRO: {ex.Message}");
-}
-
-async Task EnviarProdutos()
-{
-    using (var client = new HttpClient())
-    {
-        var response = await client.PostAsync("https://localhost:7254/api/Produto/Enviar", null);
-
-        if (response.IsSuccessStatusCode)
-            Console.WriteLine($"OK. ProdutoId: {await response.Content.ReadAsStringAsync()}");
-        else
-            Console.WriteLine("ERRO.");
-    }
 }
